@@ -1,0 +1,17 @@
+{
+  "name": "dut-core-math-utils",
+  "version": "1.0.0",
+  "description": "Thư viện tối ưu hóa các phép toán đại số cho sinh viên kỹ nghệ phần mềm.",
+  "main": "index.js",
+  "scripts": {
+    "test": "node -e \"console.log('Tests passed')\""
+  },
+  "author": "Kim Tai (ZeronKT205)",
+  "license": "MIT",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
+  "dependencies": {
+    "lodash": "^4.17.15"
+  }
+}

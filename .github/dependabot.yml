@@ -1,0 +1,16 @@
+version: 2
+updates:
+  # Cấu hình tự động gác cổng, nâng cấp cho các gói thư viện npm
+  - package-ecosystem: "npm"
+    directory: "/" # Vị trí quét file package.json
+    schedule:
+      interval: "weekly" # Định kỳ quét vào mỗi tuần một lần
+    open-pull-requests-limit: 3 # Tối đa chỉ mở 3 đơn xin nâng cấp cùng lúc để tránh làm phiền lập trình viên
+    labels:
+      - "security-patch"
+
+  # Cấu hình tự động cập nhật định kỳ cho chính các file máy ảo GitHub Actions (Chương 6)
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly" # Quét định kỳ mỗi tháng một lần

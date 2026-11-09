@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Báo Cáo Thực Hành: Quản Lý Phụ Thuộc, Khóa Phiên Bản & Robot Dependabot</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --card-bg: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --primary: #58a6ff;
+      --success: #3fb950;
+      --warning: #d29922;
+      --danger: #f85149;
+      --purple: #bc8cff;
+      --code-bg: #090d13;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 24px 16px;
+    }
+
+    .container {
+      max-width: 1050px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, rgba(88, 166, 255, 0.1) 0%, rgba(188, 140, 255, 0.1) 100%);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px;
+      margin-bottom: 24px;
+      position: relative;
+    }
+
+    .header-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(88, 166, 255, 0.15);
+      color: var(--primary);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      font-size: 1.85rem;
+      color: #fff;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 1rem;
+      margin-bottom: 20px;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      font-size: 0.9rem;
+      background: rgba(0, 0, 0, 0.25);
+      padding: 14px 18px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .meta-item strong {
+      color: var(--text-muted);
+      display: block;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .meta-item span, .meta-item a {
+      color: var(--text);
+      font-weight: 500;
+      text-decoration: none;
+    }
+
+    .meta-item a:hover {
+      color: var(--primary);
+      text-decoration: underline;
+    }
+
+    /* Actions Bar */
+    .actions-bar {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 0.88rem;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .btn:hover {
+      background: #21262d;
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* Quick KPI Cards */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .kpi-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .kpi-label {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .kpi-value {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .kpi-sub {
+      font-size: 0.8rem;
+    }
+
+    .kpi-sub.success { color: var(--success); }
+    .kpi-sub.warning { color: var(--warning); }
+    .kpi-sub.info { color: var(--primary); }
+
+    /* Sections */
+    .section {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .section-title {
+      font-size: 1.3rem;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .badge-step {
+      background: var(--primary);
+      color: #0d1117;
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-weight: 700;
+    }
+
+    /* Grid layout inside sections */
+    .split-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .split-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Cards inside section */
+    .inner-card {
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .inner-card h4 {
+      font-size: 0.95rem;
+      margin-bottom: 10px;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Lists */
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    li {
+      position: relative;
+      padding-left: 20px;
+      margin-bottom: 8px;
+      font-size: 0.92rem;
+    }
+
+    li::before {
+      content: "•";
+      position: absolute;
+      left: 6px;
+      color: var(--primary);
+      font-weight: bold;
+    }
+
+    /* Code Blocks */
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px 14px;
+      font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+      font-size: 0.85rem;
+      overflow-x: auto;
+      color: #c9d1d9;
+      margin: 10px 0;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      background: rgba(110, 118, 129, 0.2);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.88em;
+      color: #79c0ff;
+    }
+
+    /* Callout */
+    .callout {
+      border-left: 4px solid var(--primary);
+      background: rgba(88, 166, 255, 0.08);
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      margin: 14px 0;
+      font-size: 0.9rem;
+    }
+
+    .callout.warning {
+      border-color: var(--warning);
+      background: rgba(210, 153, 34, 0.1);
+    }
+
+    .callout.success {
+      border-color: var(--success);
+      background: rgba(63, 185, 80, 0.1);
+    }
+
+    /* Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.9rem;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+      text-align: left;
+    }
+
+    th {
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+    }
+
+    /* Print styling */
+    @media print {
+      body {
+        background: #fff;
+        color: #000;
+        padding: 0;
+      }
+      .actions-bar { display: none; }
+      .header, .section, .kpi-card, .inner-card {
+        border-color: #ddd;
+        background: #fff;
+        color: #000;
+        box-shadow: none;
+      }
+      h1, .section-title, .kpi-value { color: #000; }
+      pre, code {
+        background: #f6f8fa;
+        color: #24292e;
+        border-color: #ddd;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Actions Bar -->
+  <div class="actions-bar">
+    <button class="btn" onclick="window.print()">🖨️ In / Xuất PDF Báo Cáo</button>
+    <a class="btn" href="https://github.com/ZeronKT205/Lab0911" target="_blank">🌐 Xem GitHub Repository</a>
+  </div>
+
+  <!-- Header Banner -->
+  <header class="header">
+    <div class="header-badge">📋 BÁO CÁO THỰC HÀNH DEVOPS & SCM</div>
+    <h1>Quản Lý Phụ Thuộc, Khóa Phiên Bản & Robot Điều Phối Tự Động</h1>
+    <p class="subtitle">Đóng băng môi trường phát triển với Lockfile, kiểm định đóng gói Artifact và phòng thủ chuỗi cung ứng bằng GitHub Dependabot.</p>
+
+    <div class="meta-grid">
+      <div class="meta-item">
+        <strong>Sinh viên thực hiện</strong>
+        <span>Kim Tai (ZeronKT205)</span>
+      </div>
+      <div class="meta-item">
+        <strong>GitHub Repository</strong>
+        <a href="https://github.com/ZeronKT205/Lab0911" target="_blank">ZeronKT205/Lab0911</a>
+      </div>
+      <div class="meta-item">
+        <strong>Môi trường</strong>
+        <span>Node.js v22.15.1 | npm v10.9.2</span>
+      </div>
+      <div class="meta-item">
+        <strong>Thời gian hoàn thành</strong>
+        <span>09/11/2026</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Key Metrics / KPI Grid -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <span class="kpi-label">Manifest Package</span>
+      <span class="kpi-value">dut-core-math-utils</span>
+      <span class="kpi-sub info">v1.0.0 (SemVer Standard)</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-label">Khóa môi trường</span>
+      <span class="kpi-value">package-lock.json</span>
+      <span class="kpi-sub success">Lockfile v3 + SHA-512 Hash</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-label">Phụ thuộc thử nghiệm</span>
+      <span class="kpi-value">lodash@^4.17.15</span>
+      <span class="kpi-sub warning">1 High Severity CVE (Test Gate)</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-label">Robot gác cổng</span>
+      <span class="kpi-value">Dependabot</span>
+      <span class="kpi-sub success">Auto PR (npm & actions)</span>
+    </div>
+  </div>
+
+  <!-- BƯỚC 1 -->
+  <section class="section">
+    <h2 class="section-title">
+      <span class="badge-step">BƯỚC 1</span>
+      Cấu hình Manifest, Bản chất Version Ranges và Lockfile
+    </h2>
+
+    <div class="split-grid">
+      <div class="inner-card">
+        <h4>📄 Manifest File (package.json)</h4>
+        <p>File định danh và khai báo khoảng phiên bản phụ thuộc SemVer:</p>
+        <pre><code>"dependencies": {
+  "lodash": "^4.17.15"
+}</code></pre>
+        <ul>
+          <li><strong>Toán tử Caret (^)</strong>: Chỉ định chấp nhận các bản vá <code>PATCH</code> (4.17.x) hoặc cập nhật <code>MINOR</code> (4.x.x), ngăn chặn cập nhật <code>MAJOR</code> phá vỡ tương thích (breaking changes &lt; 5.0.0).</li>
+          <li>Khai báo thông tin bản quyền: <code>MIT</code>, mô tả gói và cấu hình registry chuẩn npm.</li>
+        </ul>
+      </div>
+
+      <div class="inner-card">
+        <h4>🔒 Bản chất của Lockfile (package-lock.json)</h4>
+        <p>Đóng băng tuyệt đối 100% cây phụ thuộc và mã băm mật mã:</p>
+        <pre><code>"node_modules/lodash": {
+  "version": "4.17.15",
+  "resolved": "https://registry.npmjs.org/lodash/-/lodash-4.17.15.tgz",
+  "integrity": "sha512-8xOcRHvCjnocdS5cpwXQXVzmmh5..."
+}</code></pre>
+        <ul>
+          <li><strong>Mã băm SHA-512 (integrity)</strong>: Chống tấn công Man-in-the-Middle và giả mạo gói.</li>
+          <li><strong>Lệnh <code>npm ci</code> (Clean Install)</strong>: Dùng trong CI/CD, đọc trực tiếp từ Lockfile, đảm bảo toàn đội nhóm có môi trường đồng nhất.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout warning">
+      <strong>⚠️ Phát hiện lỗ hổng chuỗi cung ứng có chủ đích:</strong> Khi chạy lệnh <code>npm install lodash@4.17.15</code>, hệ thống npm Audit cảnh báo: <code>1 high severity vulnerability</code> (lỗ hổng Prototype Pollution). Đây chính là kịch bản thử nghiệm để robot Dependabot kích hoạt cơ chế vá tự động.
+    </div>
+  </section>
+
+  <!-- BƯỚC 2 -->
+  <section class="section">
+    <h2 class="section-title">
+      <span class="badge-step">BƯỚC 2</span>
+      Đóng gói Artifact & Giả lập Phát hành (npm pack & dry-run)
+    </h2>
+
+    <div class="split-grid">
+      <div class="inner-card">
+        <h4>📦 Đóng gói Artifact cục bộ (`npm pack`)</h4>
+        <p>Hệ thống tự động nén mã nguồn thành gói tệp tiêu chuẩn sạch rác:</p>
+        <pre><code>npm notice package: dut-core-math-utils@1.0.0
+npm notice Tarball Contents
+npm notice 68B  index.js
+npm notice 449B package.json
+npm notice filename: dut-core-math-utils-1.0.0.tgz
+npm notice package size: 496 B
+dut-core-math-utils-1.0.0.tgz</code></pre>
+        <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 8px;">
+          Đã loại bỏ hoàn toàn thư mục <code>node_modules/</code> nặng hàng chục MB, chỉ nén đúng mã nguồn cần thiết (<code>index.js</code> và <code>package.json</code>).
+        </p>
+      </div>
+
+      <div class="inner-card">
+        <h4>🚀 Giả lập phát hành an toàn (`npm publish --dry-run`)</h4>
+        <p>Kiểm tra tính hợp lệ của việc xuất bản trước khi đẩy lên npm toàn cầu:</p>
+        <pre><code>npm notice Publishing to https://registry.npmjs.org/
+           with tag latest and default access (dry-run)
++ dut-core-math-utils@1.0.0</code></pre>
+        <ul>
+          <li><strong>Tham số <code>--dry-run</code></strong>: Giúp lập trình viên kiểm thử toàn diện quy trình xác thực, quyền hạn và metadata mà không phát hành thật, tránh làm hỏng kho chung.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- BƯỚC 3 -->
+  <section class="section">
+    <h2 class="section-title">
+      <span class="badge-step">BƯỚC 3</span>
+      Kích hoạt Robot Dependabot Tự Động Hóa Chuỗi Cung Ứng
+    </h2>
+
+    <p style="margin-bottom: 14px;">Bản thiết kế điều phối robot được đặt tại vị trí <code>.github/dependabot.yml</code>:</p>
+    <pre><code>version: 2
+updates:
+  # Cấu hình tự động gác cổng, nâng cấp cho các gói thư viện npm
+  - package-ecosystem: "npm"
+    directory: "/" # Vị trí quét file package.json
+    schedule:
+      interval: "weekly" # Định kỳ quét vào mỗi tuần một lần
+    open-pull-requests-limit: 3 # Tối đa mở 3 PR cùng lúc tránh ngập lụt
+    labels:
+      - "security-patch"
+
+  # Cấu hình tự động cập nhật định kỳ cho chính các file GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly" # Quét định kỳ mỗi tháng một lần</code></pre>
+
+    <div class="callout success">
+      <strong>🤖 Quy trình phòng vệ tự động của Dependabot:</strong>
+      <ol style="margin-left: 20px; margin-top: 8px; font-size: 0.9rem;">
+        <li>Robot quét file <code>package.json</code> và <code>package-lock.json</code> trên nhánh <code>main</code>.</li>
+        <li>So khớp phiên bản <code>lodash@4.17.15</code> với cơ sở dữ liệu GitHub Advisory Database (CVE).</li>
+        <li>Phát hiện lỗ hổng bảo mật ➔ Tự động tạo nhánh mới và mở <strong>Pull Request</strong> nâng cấp lên phiên bản an toàn kèm nhãn <code>security-patch</code>.</li>
+        <li>Chạy qua kiểm thử CI ➔ Lập trình viên chỉ cần kiểm tra changelog và bấm nút duyệt (Merge).</li>
+      </ol>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Hệ sinh thái</th>
+          <th>Thư mục quét</th>
+          <th>Tần suất quét</th>
+          <th>Giới hạn PR</th>
+          <th>Nhãn tự động</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>npm</code></td>
+          <td><code>/</code> (Root)</td>
+          <td>Hàng tuần (<code>weekly</code>)</td>
+          <td>3 Pull Requests</td>
+          <td><span style="color: var(--danger); font-weight: 600;">security-patch</span></td>
+        </tr>
+        <tr>
+          <td><code>github-actions</code></td>
+          <td><code>/</code> (Root)</td>
+          <td>Hàng tháng (<code>monthly</code>)</td>
+          <td>Mặc định</td>
+          <td>Tự động</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- BƯỚC 4: KẾT QUẢ ĐỒNG BỘ GITHUB -->
+  <section class="section">
+    <h2 class="section-title">
+      <span class="badge-step">NGHIỆM THU</span>
+      Trạng Thái Triển Khai & Kiểm Định Trên GitHub
+    </h2>
+
+    <div class="inner-card">
+      <h4>📍 Các bước kiểm tra trên giao diện Web GitHub</h4>
+      <ul>
+        <li>Truy cập Repository: <a href="https://github.com/ZeronKT205/Lab0911" target="_blank">github.com/ZeronKT205/Lab0911</a></li>
+        <li>Chọn <strong>Insights</strong> ➔ <strong>Dependency Graph</strong> ➔ Tab <strong>Dependabot</strong>: Xem lịch sử quét và trạng thái trực ban của robot.</li>
+        <li>Mục <strong>Security</strong> ➔ <strong>Dependabot alerts</strong>: Xem danh sách cảnh báo lỗ hổng của gói <code>lodash@4.17.15</code>.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- TỔNG KẾT -->
+  <section class="section" style="border-left: 4px solid var(--purple);">
+    <h3 style="color: var(--purple); margin-bottom: 10px;">🎓 Tổng Kết Kiến Thức Trọng Tâm</h3>
+    <ul>
+      <li><strong>SemVer & Caret (^)</strong> giúp kiểm soát cân bằng giữa tính năng cập nhật và độ ổn định hệ thống.</li>
+      <li><strong>Lockfile bắt buộc phải đưa lên Git</strong> để đảm bảo mọi thành viên trong dự án và môi trường CI/CD sử dụng chính xác 100% cùng phiên bản dependencies.</li>
+      <li><strong>npm pack</strong> tạo bản phân phối gọn nhẹ (Artifact) không chứa rác <code>node_modules</code>.</li>
+      <li><strong>Dependabot</strong> đóng vai trò lá chắn tự động trong DevSecOps, phòng thủ chuỗi cung ứng trước các lỗ hổng bảo mật zero-day hoặc CVE mới xuất hiện.</li>
+    </ul>
+  </section>
+</div>
+
+</body>
+</html>
