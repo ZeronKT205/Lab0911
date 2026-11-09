@@ -201,18 +201,44 @@
       font-weight: 700;
     }
 
-    /* Grid layout inside sections */
+    /* Images */
+    .img-box {
+      margin: 18px 0;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .img-box img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 6px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+      display: block;
+      margin: 0 auto;
+    }
+
+    .img-caption {
+      margin-top: 10px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* Split Grid */
     .split-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 20px;
+      margin-bottom: 16px;
     }
 
     @media (max-width: 768px) {
       .split-grid { grid-template-columns: 1fr; }
     }
 
-    /* Cards inside section */
     .inner-card {
       background: rgba(0, 0, 0, 0.2);
       border: 1px solid rgba(255, 255, 255, 0.08);
@@ -229,7 +255,6 @@
       gap: 6px;
     }
 
-    /* Lists */
     ul {
       list-style: none;
       padding-left: 0;
@@ -250,13 +275,12 @@
       font-weight: bold;
     }
 
-    /* Code Blocks */
     pre {
       background: var(--code-bg);
       border: 1px solid var(--border);
       border-radius: 6px;
       padding: 12px 14px;
-      font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+      font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
       font-size: 0.85rem;
       overflow-x: auto;
       color: #c9d1d9;
@@ -272,7 +296,6 @@
       color: #79c0ff;
     }
 
-    /* Callout */
     .callout {
       border-left: 4px solid var(--primary);
       background: rgba(88, 166, 255, 0.08);
@@ -292,7 +315,6 @@
       background: rgba(63, 185, 80, 0.1);
     }
 
-    /* Table */
     table {
       width: 100%;
       border-collapse: collapse;
@@ -311,7 +333,6 @@
       color: #fff;
     }
 
-    /* Print styling */
     @media print {
       body {
         background: #fff;
@@ -319,7 +340,7 @@
         padding: 0;
       }
       .actions-bar { display: none; }
-      .header, .section, .kpi-card, .inner-card {
+      .header, .section, .kpi-card, .inner-card, .img-box {
         border-color: #ddd;
         background: #fff;
         color: #000;
@@ -331,6 +352,7 @@
         color: #24292e;
         border-color: #ddd;
       }
+      .img-caption { color: #555; }
     }
   </style>
 </head>
@@ -341,6 +363,7 @@
   <div class="actions-bar">
     <button class="btn" onclick="window.print()">🖨️ In / Xuất PDF Báo Cáo</button>
     <a class="btn" href="https://github.com/ZeronKT205/Lab0911" target="_blank">🌐 Xem GitHub Repository</a>
+    <a class="btn" href="https://github.com/ZeronKT205/Lab0911/pull/1" target="_blank">🤖 Xem Pull Request #1</a>
   </div>
 
   <!-- Header Banner -->
@@ -384,12 +407,12 @@
     <div class="kpi-card">
       <span class="kpi-label">Phụ thuộc thử nghiệm</span>
       <span class="kpi-value">lodash@^4.17.15</span>
-      <span class="kpi-sub warning">1 High Severity CVE (Test Gate)</span>
+      <span class="kpi-sub warning">5 CVE Security Alerts</span>
     </div>
     <div class="kpi-card">
       <span class="kpi-label">Robot gác cổng</span>
-      <span class="kpi-value">Dependabot</span>
-      <span class="kpi-sub success">Auto PR (npm & actions)</span>
+      <span class="kpi-value">Dependabot PR #1</span>
+      <span class="kpi-sub success">Auto-created by bot</span>
     </div>
   </div>
 
@@ -400,36 +423,42 @@
       Cấu hình Manifest, Bản chất Version Ranges và Lockfile
     </h2>
 
+    <p style="margin-bottom: 12px;">Khởi tạo dự án bằng <code>npm init -y</code> và tiến hành cài đặt thư viện phụ thuộc ở phiên bản cũ <code>lodash@4.17.15</code> để kiểm tra phản ứng của hệ sinh thái quản lý phụ thuộc:</p>
+
+    <!-- Ảnh 1: Terminal npm install -->
+    <div class="img-box">
+      <img src="./images/img_npm_install.png" alt="Khởi tạo dự án và cài đặt lodash 4.17.15">
+      <div class="img-caption">📸 <strong>Hình 1.1:</strong> Lệnh khởi tạo Manifest và cài đặt thư viện phụ thuộc lodash@4.17.15 hiển thị cảnh báo lỗ hổng bảo mật.</div>
+    </div>
+
     <div class="split-grid">
       <div class="inner-card">
         <h4>📄 Manifest File (package.json)</h4>
         <p>File định danh và khai báo khoảng phiên bản phụ thuộc SemVer:</p>
-        <pre><code>"dependencies": {
-  "lodash": "^4.17.15"
-}</code></pre>
         <ul>
-          <li><strong>Toán tử Caret (^)</strong>: Chỉ định chấp nhận các bản vá <code>PATCH</code> (4.17.x) hoặc cập nhật <code>MINOR</code> (4.x.x), ngăn chặn cập nhật <code>MAJOR</code> phá vỡ tương thích (breaking changes &lt; 5.0.0).</li>
-          <li>Khai báo thông tin bản quyền: <code>MIT</code>, mô tả gói và cấu hình registry chuẩn npm.</li>
+          <li><strong>Toán tử Caret (^)</strong>: <code>"^4.17.15"</code> ra lệnh: "Khi tải lại gói, tự động cập nhật bản PATCH (4.17.x) hoặc MINOR (4.x.x) cao nhất, miễn là dưới 5.0.0".</li>
+          <li>Khai báo thông tin bản quyền: <code>MIT</code>, tác giả và publishConfig chuẩn.</li>
         </ul>
       </div>
 
       <div class="inner-card">
-        <h4>🔒 Bản chất của Lockfile (package-lock.json)</h4>
+        <h4>🔒 Bản chất Lockfile (package-lock.json)</h4>
         <p>Đóng băng tuyệt đối 100% cây phụ thuộc và mã băm mật mã:</p>
-        <pre><code>"node_modules/lodash": {
-  "version": "4.17.15",
-  "resolved": "https://registry.npmjs.org/lodash/-/lodash-4.17.15.tgz",
-  "integrity": "sha512-8xOcRHvCjnocdS5cpwXQXVzmmh5..."
-}</code></pre>
         <ul>
-          <li><strong>Mã băm SHA-512 (integrity)</strong>: Chống tấn công Man-in-the-Middle và giả mạo gói.</li>
-          <li><strong>Lệnh <code>npm ci</code> (Clean Install)</strong>: Dùng trong CI/CD, đọc trực tiếp từ Lockfile, đảm bảo toàn đội nhóm có môi trường đồng nhất.</li>
+          <li><strong>Mã băm SHA-512 (integrity)</strong>: Ngăn chặn tấn công đầu độc mã nguồn và sai lệch phiên bản giữa các máy lập trình viên.</li>
+          <li><strong>Lệnh <code>npm ci</code></strong>: Khi làm việc nhóm và triển khai CI/CD, chỉ cần chạy <code>npm ci</code> để tải chính xác bản đã khóa.</li>
         </ul>
       </div>
     </div>
 
+    <!-- Ảnh 2: So sánh package.json và package-lock.json -->
+    <div class="img-box">
+      <img src="./images/img_package_json_lock.png" alt="So sánh package.json và package-lock.json">
+      <div class="img-caption">📸 <strong>Hình 1.2:</strong> Đối chiếu giữa Manifest file (khoảng phiên bản SemVer) và Lockfile (khóa cứng phiên bản + mã băm integrity sha512).</div>
+    </div>
+
     <div class="callout warning">
-      <strong>⚠️ Phát hiện lỗ hổng chuỗi cung ứng có chủ đích:</strong> Khi chạy lệnh <code>npm install lodash@4.17.15</code>, hệ thống npm Audit cảnh báo: <code>1 high severity vulnerability</code> (lỗ hổng Prototype Pollution). Đây chính là kịch bản thử nghiệm để robot Dependabot kích hoạt cơ chế vá tự động.
+      <strong>⚠️ Lỗ hổng có chủ đích:</strong> Thư viện <code>lodash@4.17.15</code> có các lỗ hổng đã được công bố (như Prototype Pollution, Code Injection). Đây là tiền đề để kiểm thử khả năng rà soát chuỗi cung ứng tự động ở Bước 3.
     </div>
   </section>
 
@@ -440,30 +469,29 @@
       Đóng gói Artifact & Giả lập Phát hành (npm pack & dry-run)
     </h2>
 
+    <p style="margin-bottom: 12px;">Đóng gói thư viện tiện ích <code>dut-core-math-utils</code> thành linh kiện phần mềm tiêu chuẩn để chuẩn bị phát hành lên kho npm Registry toàn cầu:</p>
+
+    <!-- Ảnh 3: npm pack & publish dry-run -->
+    <div class="img-box">
+      <img src="./images/img_npm_pack.png" alt="Thực hiện npm pack và publish dry-run">
+      <div class="img-caption">📸 <strong>Hình 2.1:</strong> Đóng gói Artifact bằng lệnh `npm pack` (nén ra tệp .tgz 496 Bytes sạch rác) và kiểm tra phát hành an toàn với `--dry-run`.</div>
+    </div>
+
     <div class="split-grid">
       <div class="inner-card">
         <h4>📦 Đóng gói Artifact cục bộ (`npm pack`)</h4>
-        <p>Hệ thống tự động nén mã nguồn thành gói tệp tiêu chuẩn sạch rác:</p>
-        <pre><code>npm notice package: dut-core-math-utils@1.0.0
-npm notice Tarball Contents
-npm notice 68B  index.js
-npm notice 449B package.json
-npm notice filename: dut-core-math-utils-1.0.0.tgz
-npm notice package size: 496 B
-dut-core-math-utils-1.0.0.tgz</code></pre>
-        <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 8px;">
-          Đã loại bỏ hoàn toàn thư mục <code>node_modules/</code> nặng hàng chục MB, chỉ nén đúng mã nguồn cần thiết (<code>index.js</code> và <code>package.json</code>).
-        </p>
+        <ul>
+          <li>Hệ thống nén mã nguồn thành <code>dut-core-math-utils-1.0.0.tgz</code>.</li>
+          <li>Chỉ đóng gói 2 tệp cần thiết: <code>index.js</code> và <code>package.json</code>.</li>
+          <li>Toàn bộ thư mục nặng <code>node_modules/</code> tự động bị loại bỏ, bảo vệ băng thông và tính sạch sẽ của gói artifact.</li>
+        </ul>
       </div>
 
       <div class="inner-card">
-        <h4>🚀 Giả lập phát hành an toàn (`npm publish --dry-run`)</h4>
-        <p>Kiểm tra tính hợp lệ của việc xuất bản trước khi đẩy lên npm toàn cầu:</p>
-        <pre><code>npm notice Publishing to https://registry.npmjs.org/
-           with tag latest and default access (dry-run)
-+ dut-core-math-utils@1.0.0</code></pre>
+        <h4>🚀 Giả lập phát hành (`npm publish --dry-run`)</h4>
         <ul>
-          <li><strong>Tham số <code>--dry-run</code></strong>: Giúp lập trình viên kiểm thử toàn diện quy trình xác thực, quyền hạn và metadata mà không phát hành thật, tránh làm hỏng kho chung.</li>
+          <li>Tham số <code>--dry-run</code> giúp mô phỏng toàn bộ luồng phát hành lên <code>https://registry.npmjs.org/</code>.</li>
+          <li>Giúp kiểm tra cấu hình pháp lý, quyền truy cập và file hợp lệ mà không thực sự tải lên chợ, an toàn tuyệt đối khi thực hành.</li>
         </ul>
       </div>
     </div>
@@ -476,32 +504,12 @@ dut-core-math-utils-1.0.0.tgz</code></pre>
       Kích hoạt Robot Dependabot Tự Động Hóa Chuỗi Cung Ứng
     </h2>
 
-    <p style="margin-bottom: 14px;">Bản thiết kế điều phối robot được đặt tại vị trí <code>.github/dependabot.yml</code>:</p>
-    <pre><code>version: 2
-updates:
-  # Cấu hình tự động gác cổng, nâng cấp cho các gói thư viện npm
-  - package-ecosystem: "npm"
-    directory: "/" # Vị trí quét file package.json
-    schedule:
-      interval: "weekly" # Định kỳ quét vào mỗi tuần một lần
-    open-pull-requests-limit: 3 # Tối đa mở 3 PR cùng lúc tránh ngập lụt
-    labels:
-      - "security-patch"
+    <p style="margin-bottom: 12px;">Thiết lập bản thiết kế robot tại thư mục <code>.github/dependabot.yml</code> nhằm bảo vệ chuỗi cung ứng phần mềm (Software Supply Chain Security):</p>
 
-  # Cấu hình tự động cập nhật định kỳ cho chính các file GitHub Actions
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: "monthly" # Quét định kỳ mỗi tháng một lần</code></pre>
-
-    <div class="callout success">
-      <strong>🤖 Quy trình phòng vệ tự động của Dependabot:</strong>
-      <ol style="margin-left: 20px; margin-top: 8px; font-size: 0.9rem;">
-        <li>Robot quét file <code>package.json</code> và <code>package-lock.json</code> trên nhánh <code>main</code>.</li>
-        <li>So khớp phiên bản <code>lodash@4.17.15</code> với cơ sở dữ liệu GitHub Advisory Database (CVE).</li>
-        <li>Phát hiện lỗ hổng bảo mật ➔ Tự động tạo nhánh mới và mở <strong>Pull Request</strong> nâng cấp lên phiên bản an toàn kèm nhãn <code>security-patch</code>.</li>
-        <li>Chạy qua kiểm thử CI ➔ Lập trình viên chỉ cần kiểm tra changelog và bấm nút duyệt (Merge).</li>
-      </ol>
+    <!-- Ảnh 4: File dependabot.yml -->
+    <div class="img-box">
+      <img src="./images/img_dependabot_yml.png" alt="Cấu hình dependabot.yml">
+      <div class="img-caption">📸 <strong>Hình 3.1:</strong> Tệp cấu hình .github/dependabot.yml điều phối lịch quét và tự động mở Pull Request nâng cấp.</div>
     </div>
 
     <table>
@@ -533,31 +541,44 @@ updates:
     </table>
   </section>
 
-  <!-- BƯỚC 4: KẾT QUẢ ĐỒNG BỘ GITHUB -->
+  <!-- BƯỚC 4: NGHIỆM THU TRÊN GITHUB -->
   <section class="section">
     <h2 class="section-title">
       <span class="badge-step">NGHIỆM THU</span>
-      Trạng Thái Triển Khai & Kiểm Định Trên GitHub
+      Kết Quả Thực Tế Trên GitHub Repository
     </h2>
 
-    <div class="inner-card">
-      <h4>📍 Các bước kiểm tra trên giao diện Web GitHub</h4>
-      <ul>
-        <li>Truy cập Repository: <a href="https://github.com/ZeronKT205/Lab0911" target="_blank">github.com/ZeronKT205/Lab0911</a></li>
-        <li>Chọn <strong>Insights</strong> ➔ <strong>Dependency Graph</strong> ➔ Tab <strong>Dependabot</strong>: Xem lịch sử quét và trạng thái trực ban của robot.</li>
-        <li>Mục <strong>Security</strong> ➔ <strong>Dependabot alerts</strong>: Xem danh sách cảnh báo lỗ hổng của gói <code>lodash@4.17.15</code>.</li>
-      </ul>
+    <!-- Ảnh 5: Kho GitHub ZeronKT205/Lab0911 -->
+    <div class="img-box">
+      <img src="./images/img_github_repo.png" alt="Giao diện GitHub Repository ZeronKT205/Lab0911">
+      <div class="img-caption">📸 <strong>Hình 4.1:</strong> Kho lưu trữ GitHub chính thức tại github.com/ZeronKT205/Lab0911 chứa đầy đủ mã nguồn, lockfile và artifact.</div>
+    </div>
+
+    <!-- Ảnh 6: Security Alerts -->
+    <div class="img-box">
+      <img src="./images/img_security_alerts.png" alt="Danh sách Dependabot Alerts">
+      <div class="img-caption">📸 <strong>Hình 4.2:</strong> Hệ thống GitHub Dependabot phát hiện 5 cảnh báo bảo mật từ lodash@4.17.15 (bao gồm CVE-2026-4800, CVE-2021-23337).</div>
+    </div>
+
+    <!-- Ảnh 7: Pull Request #1 từ Dependabot -->
+    <div class="img-box">
+      <img src="./images/img_dependabot_pr.png" alt="Pull Request tự động từ Dependabot">
+      <div class="img-caption">📸 <strong>Hình 4.3:</strong> Robot Dependabot tự động mở Pull Request #1 ("bump lodash from 4.17.15 to 4.18.1") với tỷ lệ tương thích 86%.</div>
+    </div>
+
+    <div class="callout success">
+      <strong>🎉 Kết quả thực nghiệm hoàn hảo:</strong> Ngay sau khi đẩy mã nguồn lên GitHub, robot Dependabot đã tự động rà soát, phát hiện phiên bản <code>lodash@4.17.15</code> có lỗ hổng bảo mật và tự động mở <strong>Pull Request #1</strong> để nâng cấp lên <code>4.18.1</code> mà không cần sự can thiệp thủ công của lập trình viên!
     </div>
   </section>
 
   <!-- TỔNG KẾT -->
   <section class="section" style="border-left: 4px solid var(--purple);">
-    <h3 style="color: var(--purple); margin-bottom: 10px;">🎓 Tổng Kết Kiến Thức Trọng Tâm</h3>
+    <h3 style="color: var(--purple); margin-bottom: 10px;">🎓 Bài Học & Đánh Giá Bài Lab</h3>
     <ul>
-      <li><strong>SemVer & Caret (^)</strong> giúp kiểm soát cân bằng giữa tính năng cập nhật và độ ổn định hệ thống.</li>
-      <li><strong>Lockfile bắt buộc phải đưa lên Git</strong> để đảm bảo mọi thành viên trong dự án và môi trường CI/CD sử dụng chính xác 100% cùng phiên bản dependencies.</li>
-      <li><strong>npm pack</strong> tạo bản phân phối gọn nhẹ (Artifact) không chứa rác <code>node_modules</code>.</li>
-      <li><strong>Dependabot</strong> đóng vai trò lá chắn tự động trong DevSecOps, phòng thủ chuỗi cung ứng trước các lỗ hổng bảo mật zero-day hoặc CVE mới xuất hiện.</li>
+      <li><strong>Toán tử SemVer Caret (^)</strong> cho phép linh hoạt vá lỗi nhưng có thể vô tình đón nhận rủi ro nếu thư viện bên ngoài dính lỗi.</li>
+      <li><strong>Lockfile (`package-lock.json`)</strong> là bắt buộc trong mọi dự án phần mềm chuyên nghiệp để bảo đảm tính tái lập (Reproducible Builds).</li>
+      <li><strong>npm pack</strong> giúp đóng gói artifact tinh gọn và tách biệt hoàn toàn môi trường phát triển với gói xuất bản.</li>
+      <li><strong>GitHub Dependabot</strong> là giải pháp then chốt trong chu trình DevSecOps, giúp chuyển dịch bảo mật sang trái (Shift-Left Security), tự động hóa việc vá lỗi chuỗi cung ứng trước khi bị kẻ xấu khai thác.</li>
     </ul>
   </section>
 </div>
